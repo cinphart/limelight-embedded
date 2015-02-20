@@ -13,9 +13,8 @@ public class EvdevAbsolute {
 	
 	private final static int ABS_OFFSET = 0x40;
 	
-	private int min, max;
 	private int avg;
-	private int range, diff;
+	private int range;
 	private int flat;
 	
 	private boolean reverse;
@@ -28,13 +27,12 @@ public class EvdevAbsolute {
 		IO.ioctl(filename, data, request);
 		
 		buffer.getInt(); //Skip current value
-		min = buffer.getInt();
-		max = buffer.getInt();
+		int min = buffer.getInt();
+		int max = buffer.getInt();
 		buffer.getInt(); //Skip fuzz
 		flat = buffer.getInt();
 		avg = (min+max)/2;
 		range = max-avg;
-		diff = max-min;
 		
 		this.reverse = reverse;
 	}
@@ -47,9 +45,9 @@ public class EvdevAbsolute {
 	public short getShort(int value) {
 		if (Math.abs(value-avg)<flat)
 			return 0;
-		else if (value>max)
+		else if (value>avg+range)
 			return reverse?Short.MIN_VALUE:Short.MAX_VALUE;
-		else if (value<min)
+		else if (value<avg-range)
 			return reverse?Short.MAX_VALUE:Short.MIN_VALUE;
 		else {
 			value += value<avg?flat:-flat;
@@ -63,15 +61,15 @@ public class EvdevAbsolute {
 	 * @return input value as byte
 	 */
 	public byte getByte(int value) {
-		if (Math.abs(value-min)<flat)
+		if (Math.abs(value-avg)<flat)
 			return 0;
-		else if (value>max)
-			return reverse?0:(byte) 0xFF;
-		else if (value<min)
-			return reverse?(byte) 0xFF:0;
+		else if (value>avg+range)
+			return reverse?Byte.MIN_VALUE:Byte.MAX_VALUE;
+		else if (value<avg-range)
+			return reverse?Byte.MAX_VALUE:Byte.MIN_VALUE;
 		else {
-			value -= -flat;
-			return (byte) ((value-min) * 0xFF / (reverse?flat-diff:diff-flat));
+			value += value<avg?flat:-flat;
+			return (byte) ((value-avg) * Byte.MAX_VALUE / (reverse?flat-range:range-flat));
 		}
 	}
 	
