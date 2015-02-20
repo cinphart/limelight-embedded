@@ -31,8 +31,8 @@ public class EvdevHandler extends EvdevReader {
     
     private byte keyModifiers;
 	
-	private EvdevAbsolute absLX, absLY, absRX, absRY, absLT, absRT, absDX, absDY;
-	
+	private EvdevAbsolute absLX, absLY, absRX, absRY,  absDX, absDY;
+        private EvdevAbsTrigger absLT, absRT;
 	private NvConnection conn;
 	private GamepadMapping mapping;
 	
@@ -48,8 +48,8 @@ public class EvdevHandler extends EvdevReader {
 		absLY = new EvdevAbsolute(device, mapping.abs_y, !mapping.reverse_y);
 		absRX = new EvdevAbsolute(device, mapping.abs_rx, mapping.reverse_rx);
 		absRY = new EvdevAbsolute(device, mapping.abs_ry, !mapping.reverse_ry);
-		absLT = new EvdevAbsolute(device, mapping.abs_z, mapping.reverse_z);
-		absRT = new EvdevAbsolute(device, mapping.abs_rz, mapping.reverse_rz);
+		absLT = new EvdevAbsTrigger(device, mapping.abs_z, mapping.reverse_z);
+		absRT = new EvdevAbsTrigger(device, mapping.abs_rz, mapping.reverse_rz);
 		absDX = new EvdevAbsolute(device, mapping.abs_dpad_x, mapping.reverse_dpad_x);
 		absDY = new EvdevAbsolute(device, mapping.abs_dpad_y, mapping.reverse_dpad_y);
 		
